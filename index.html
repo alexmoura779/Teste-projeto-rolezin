@@ -5,144 +5,223 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guia Gastronômico de Estabelecimentos de Gosto Duvidosos</title>
     <style>
-        /* Estilos CSS (Mantidos do código original) */
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #ff8c00; /* Laranja */
-            color: #333;
+        * {
             margin: 0;
             padding: 0;
-            text-align: center;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FFA500 0%, #FFB84D 50%, #FF8C00 100%);
+            min-height: 100vh;
+            padding: 20px;
+            background-attachment: fixed;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
         }
-        h1 {
-            color: #fff;
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header h1 {
             font-size: 2.5em;
-            margin-top: 50px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+            font-weight: bold;
         }
-        p {
-            color: #fff;
+
+        header p {
             font-size: 1.1em;
-            margin-bottom: 40px;
+            opacity: 0.95;
         }
-        .buttons-container {
+
+        .header-buttons {
             display: flex;
+            gap: 15px;
             justify-content: center;
-            gap: 20px;
-            margin-bottom: 40px;
+            margin-top: 20px;
+            flex-wrap: wrap;
         }
-        .btn {
-            background-color: #fff;
-            color: #ff8c00;
+
+        .btn-add {
+            background: white;
+            color: #FF8C00;
             border: none;
-            padding: 15px 30px;
-            border-radius: 30px;
-            font-size: 1.1em;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s, transform 0.1s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        .btn:hover {
-            background-color: #f0f0f0;
+
+        .btn-add:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
         }
+
+        .btn-admin {
+            background: #DC143C;
+            color: white;
+        }
+
         .encontros-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
         }
+
         .encontro-card {
-            background-color: #fff;
+            background: white;
             border-radius: 15px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
             overflow: hidden;
-            text-align: left;
-            transition: transform 0.3s;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
             position: relative;
-        }
-        .encontro-card:hover {
-            transform: translateY(-5px);
-        }
-        .card-image-container {
-            height: 200px;
-            background-color: #ccc;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            position: relative;
+            flex-direction: column;
         }
+
+        .encontro-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-image-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
         .card-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .placeholder-image {
-            font-size: 4em;
-            color: #666;
+
+        .btn-edit-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #FF8C00;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
+        .btn-edit-menu:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
         .card-content {
             padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
+
         .card-title {
-            font-size: 1.5em;
+            font-size: 1.3em;
             font-weight: bold;
+            color: #333;
             margin-bottom: 10px;
-            color: #ff8c00;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 10px;
         }
+
         .card-date {
             font-size: 0.9em;
-            color: #666;
+            color: #999;
             margin-bottom: 10px;
         }
+
         .card-rating {
-            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-bottom: 15px;
         }
+
         .stars {
-            color: gold;
-            font-size: 1.5em;
+            color: #ffc107;
+            font-size: 1.2em;
         }
+
         .rating-value {
+            color: #666;
             font-weight: bold;
-            color: #ff8c00;
         }
+
         .card-reviews {
             font-size: 0.9em;
             color: #999;
             margin-bottom: 15px;
         }
+
         .btn-avaliar {
-            background-color: #ff8c00;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
             width: 100%;
+            background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
             font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        .btn-avaliar:hover {
-            background-color: #e07b00;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
         }
 
-        /* Modal Styles */
+        .btn-avaliar:hover {
+            opacity: 0.9;
+        }
+
+        .btn-avaliar:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-delete {
+            width: 100%;
+            background: #DC143C;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            opacity: 0.9;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -151,205 +230,230 @@
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+            overflow-y: auto;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         .modal-content {
-            background-color: #fefefe;
-            margin: 10% auto;
+            background-color: white;
+            margin: 5% auto;
             padding: 30px;
-            border-radius: 10px;
-            width: 80%;
+            border-radius: 15px;
+            width: 90%;
             max-width: 500px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
         }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #FF8C00;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 10px;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .star-rating span {
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.2s ease;
+        }
+
+        .star-rating span:hover,
+        .star-rating span.active {
+            color: #ffc107;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .btn-modal {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        .btn-cancel {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
         .close {
             color: #aaa;
             float: right;
-            font-size: 28px;
+            font-size: 1.5em;
             font-weight: bold;
-            position: absolute;
-            top: 10px;
-            right: 20px;
+            cursor: pointer;
+            transition: color 0.3s ease;
         }
-        .close:hover,
-        .close:focus {
+
+        .close:hover {
             color: #000;
-            text-decoration: none;
-            cursor: pointer;
         }
-        .modal-content h2 {
-            color: #ff8c00;
-            margin-top: 0;
-        }
-        .modal-content input[type="text"],
-        .modal-content input[type="date"],
-        .modal-content textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0 20px 0;
-            display: inline-block;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .modal-content button {
-            background-color: #ff8c00;
-            color: white;
-            padding: 14px 20px;
-            margin: 8px 0;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1em;
-        }
-        .modal-content button:hover {
-            background-color: #e07b00;
-        }
-        .star-rating {
-            font-size: 2em;
-            cursor: pointer;
-            color: #ccc;
-            margin-bottom: 20px;
-        }
-        .star-rating span.active {
-            color: gold;
-        }
-        .star-rating span {
-            transition: color 0.1s;
-        }
+
         .already-rated {
-            background-color: #e6ffe6;
-            color: #008000;
+            background: #f0f0f0;
+            color: #666;
             padding: 10px;
-            border-radius: 5px;
+            border-radius: 8px;
             text-align: center;
-            font-weight: bold;
+            font-size: 0.9em;
         }
-        .loading {
-            color: #fff;
-            font-size: 1.2em;
-            margin-top: 50px;
-        }
-        .future-badge {
-            background-color: #4682b4;
-            color: #fff;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.7em;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-        .admin-panel {
-            background-color: #333;
-            color: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .admin-panel h3 {
-            margin-top: 0;
-            color: #ff8c00;
-        }
-        .admin-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .admin-btn {
-            background-color: #ff8c00;
-            color: #fff;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        .admin-btn:hover {
-            background-color: #e07b00;
-        }
+
         .user-review {
-            border-bottom: 1px solid #eee;
-            padding: 10px 0;
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border-left: 4px solid #FF8C00;
         }
-        .user-review:last-child {
-            border-bottom: none;
-        }
+
         .user-review-header {
             display: flex;
             justify-content: space-between;
+            margin-bottom: 8px;
             font-weight: bold;
-            font-size: 0.9em;
-        }
-        .user-review-stars {
-            color: gold;
-        }
-        .user-review-comment {
-            font-style: italic;
-            color: #555;
-            margin-top: 5px;
-            font-size: 0.9em;
-        }
-        .btn-edit-menu {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.8);
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            font-size: 1.2em;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            z-index: 10;
-        }
-        .edit-menu {
-            position: absolute;
-            top: 40px;
-            right: 10px;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            z-index: 20;
-            display: flex;
-            flex-direction: column;
-            width: 200px;
-            overflow: hidden;
-        }
-        .edit-menu button {
-            background: none;
-            border: none;
-            padding: 10px;
-            text-align: left;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            font-size: 0.9em;
             color: #333;
         }
-        .edit-menu button:hover {
-            background-color: #f0f0f0;
-        }
-        .empty-state {
-            color: #999;
-            text-align: center;
-            padding: 20px;
-            border: 1px dashed #ccc;
-            border-radius: 5px;
-            margin-top: 10px;
+
+        .user-review-stars {
+            color: #ffc107;
+            margin-bottom: 8px;
         }
 
-        /* Achievement Modal */
-        #achievementModal {
+        .user-review-comment {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .image-input-group {
+            margin-bottom: 20px;
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 150px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9f9f9;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .future-badge {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+
+        .placeholder-image {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: #ccc;
+        }
+
+        .achievement-modal {
             display: none;
             position: fixed;
             z-index: 2000;
@@ -357,168 +461,297 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: #ff8c00;
+            background-color: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s ease;
+            display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
-            text-align: center;
         }
+
         .achievement-content {
-            background-color: #ff8c00;
-            padding: 40px;
-            border-radius: 10px;
-            color: #fff;
-            max-width: 90%;
+            background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%);
+            padding: 50px 40px;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: slideIn 0.5s ease;
         }
-        #achievementIcon {
-            font-size: 6em;
+
+        .achievement-icon {
+            font-size: 5em;
             margin-bottom: 20px;
-            display: block;
+            animation: bounce 0.6s ease infinite;
         }
-        #achievementTitle {
-            font-size: 2.5em;
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .achievement-title {
+            font-size: 2em;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-        #achievementSubtitle {
-            font-size: 1.5em;
+
+        .achievement-subtitle {
+            font-size: 1.3em;
             margin-bottom: 20px;
+            opacity: 0.95;
         }
-        #achievementMessage {
-            font-size: 1.2em;
-            margin-bottom: 40px;
-            font-style: italic;
+
+        .achievement-message {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
         }
-        #achievementModal button {
-            background-color: #fff;
-            color: #ff8c00;
+
+        .achievement-button {
+            background: white;
+            color: #FF8C00;
             border: none;
             padding: 15px 40px;
-            border-radius: 30px;
-            font-size: 1.2em;
+            border-radius: 25px;
+            font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .achievement-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .admin-panel {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #DC143C;
+        }
+
+        .admin-panel h3 {
+            color: #DC143C;
+            margin-bottom: 10px;
+        }
+
+        .admin-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .admin-btn {
+            background: #DC143C;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn:hover {
+            opacity: 0.9;
+        }
+
+        .edit-menu {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            min-width: 200px;
+            overflow: hidden;
+        }
+
+        .edit-menu button {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.95em;
+            color: #333;
+            transition: background-color 0.2s;
+        }
+
+        .edit-menu button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .edit-menu button:first-child {
+            border-bottom: 1px solid #eee;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            margin-top: 50px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="adminPanel">
-            <!-- Painel Admin será inserido aqui -->
-        </div>
+        <header>
+            <h1>🍽️ Guia Gastronômico de Estabelecimentos de Gosto Duvidosos</h1>
+            <p>Avaliação de péssimas decisões alimentares e rolês platônicos duvidosos, não vai encontrar estrelas Michelin aqui, mas sim boas memórias, e sim, ao contrário dos boatos por aí a gente só come mesmo😏</p>
+            <div class="header-buttons">
+                <button class="btn-add" onclick="abrirModalNovoEncontro()">✅ Incluir rolê realizado</button>
+                <button class="btn-add" onclick="abrirModalMarcarEncontro()">📅 Agendar saída</button>
+            </div>
+        </header>
 
-        <h1>Guia Gastronômico de Estabelecimentos de Gosto Duvidosos</h1>
-        <p>Avaliação de péssimas decisões alimentares e rolês platônicos duvidosos, não vai encontrar estrelas Michelin aqui, mas sim boas memórias, e sim, ao contrário dos boatos por aí a gente só come mesmo 😉</p>
+        <div id="adminPanel"></div>
 
-        <div class="buttons-container">
-            <button class="btn" onclick="abrirModalNovoEncontro()">
-                <span style="font-size: 1.5em;">✅</span> Incluir rolê realizado
-            </button>
-            <button class="btn" onclick="abrirModalMarcarEncontro()">
-                <span style="font-size: 1.5em;">📅</span> Agendar saída
-            </button>
-        </div>
-
-        <div id="encontrosGrid" class="encontros-grid">
+        <div class="encontros-grid" id="encontrosGrid">
             <div class="loading">Carregando dados...</div>
         </div>
     </div>
 
-    <!-- Modal Novo Encontro -->
+    <!-- Modal para Novo Encontro -->
     <div id="modalNovoEncontro" class="modal">
         <div class="modal-content">
             <span class="close" onclick="fecharModal('modalNovoEncontro')">&times;</span>
-            <h2>Incluir Novo Rolê</h2>
-            <input type="text" id="novoNome" placeholder="Nome do Local/Rolê">
-            <label for="novaImagemInput" style="display: block; margin-bottom: 10px;">Adicionar Foto (opcional):</label>
-            <input type="file" id="novaImagemInput" accept="image/*" onchange="previewImagem('novaImagemInput', 'previewNovaImagem')">
-            <div id="previewNovaImagem" class="empty-state">Selecione uma imagem</div>
-            <button onclick="adicionarNovoEncontro()">Adicionar</button>
+            <div class="modal-header">Novo Encontro</div>
+            
+            <div class="image-input-group">
+                <label>Imagem do Local</label>
+                <input type="file" id="novaImagemInput" accept="image/*" onchange="previewImagem('novaImagemInput', 'previewNovaImagem')">
+                <div class="image-preview" id="previewNovaImagem">
+                    <div class="empty-state">Selecione uma imagem</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Nome do Local</label>
+                <input type="text" id="novoNome" placeholder="Ex: Mc'donalds (Barra Funda)">
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn-modal btn-cancel" onclick="fecharModal('modalNovoEncontro')">Cancelar</button>
+                <button class="btn-modal btn-submit" onclick="adicionarNovoEncontro()">Adicionar</button>
+            </div>
         </div>
     </div>
 
-    <!-- Modal Marcar Encontro -->
+    <!-- Modal para Marcar Encontro Futuro -->
     <div id="modalMarcarEncontro" class="modal">
         <div class="modal-content">
             <span class="close" onclick="fecharModal('modalMarcarEncontro')">&times;</span>
-            <h2>Agendar Saída</h2>
-            <input type="text" id="marcarNome" placeholder="Nome do Local/Rolê">
-            <label for="marcarData" style="display: block; margin-bottom: 10px;">Data do Encontro:</label>
-            <input type="date" id="marcarData">
-            <label for="marcarImagemInput" style="display: block; margin-bottom: 10px;">Adicionar Foto (opcional):</label>
-            <input type="file" id="marcarImagemInput" accept="image/*" onchange="previewImagem('marcarImagemInput', 'previewMarcarImagem')">
-            <div id="previewMarcarImagem" class="empty-state">Selecione uma imagem</div>
-            <button onclick="marcarNovoEncontro()">Agendar</button>
+            <div class="modal-header">Agendar Saída Futura</div>
+            
+            <div class="image-input-group">
+                <label>Imagem do Local (opcional)</label>
+                <input type="file" id="marcarImagemInput" accept="image/*" onchange="previewImagem('marcarImagemInput', 'previewMarcarImagem')">
+                <div class="image-preview" id="previewMarcarImagem">
+                    <div class="empty-state">Selecione uma imagem</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Nome do Local</label>
+                <input type="text" id="marcarNome" placeholder="Ex: Restaurante XYZ">
+            </div>
+
+            <div class="form-group">
+                <label>Data Sugerida</label>
+                <input type="date" id="marcarData">
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn-modal btn-cancel" onclick="fecharModal('modalMarcarEncontro')">Cancelar</button>
+                <button class="btn-modal btn-submit" onclick="marcarNovoEncontro()">Agendar</button>
+            </div>
         </div>
     </div>
 
-    <!-- Modal Avaliar -->
+    <!-- Modal para Avaliar -->
     <div id="modalAvaliar" class="modal">
         <div class="modal-content">
             <span class="close" onclick="fecharModal('modalAvaliar')">&times;</span>
-            <h2 id="avaliarTitulo">Avaliar: [Nome do Local]</h2>
-            <p>Sua nota:</p>
-            <div id="starRating" class="star-rating">
-                <span onclick="selecionarEstrela(1)">★</span>
-                <span onclick="selecionarEstrela(2)">★</span>
-                <span onclick="selecionarEstrela(3)">★</span>
-                <span onclick="selecionarEstrela(4)">★</span>
-                <span onclick="selecionarEstrela(5)">★</span>
+            <div class="modal-header" id="avaliarTitulo">Avaliar Encontro</div>
+            
+            <div class="form-group">
+                <label>Sua Nota (0-5 estrelas)</label>
+                <div class="star-rating" id="starRating">
+                    <span onclick="selecionarEstrela(1)">★</span>
+                    <span onclick="selecionarEstrela(2)">★</span>
+                    <span onclick="selecionarEstrela(3)">★</span>
+                    <span onclick="selecionarEstrela(4)">★</span>
+                    <span onclick="selecionarEstrela(5)">★</span>
+                </div>
             </div>
-            <textarea id="comentario" placeholder="Comentário (opcional)"></textarea>
-            <button onclick="enviarAvaliacao()">Enviar Avaliação</button>
+
+            <div class="form-group">
+                <label>Comentário (opcional)</label>
+                <textarea id="comentario" placeholder="Compartilhe sua opinião sobre o local..."></textarea>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn-modal btn-cancel" onclick="fecharModal('modalAvaliar')">Cancelar</button>
+                <button class="btn-modal btn-submit" onclick="enviarAvaliacao()">Enviar Avaliação</button>
+            </div>
         </div>
     </div>
 
-    <!-- Modal Editar Encontro (Unificado) -->
+    <!-- Modal para Editar Encontro (Unificado) -->
     <div id="modalEditarEncontro" class="modal">
         <div class="modal-content">
             <span class="close" onclick="fecharModal('modalEditarEncontro')">&times;</span>
-            <h2>Editar Encontro</h2>
-            <label for="editarNomeInput" style="display: block; margin-bottom: 10px;">Novo Nome:</label>
-            <input type="text" id="editarNomeInput" placeholder="Nome do Local/Rolê">
-            <label for="editarImagemInput" style="display: block; margin-bottom: 10px;">Nova Foto (substituir):</label>
-            <input type="file" id="editarImagemInput" accept="image/*" onchange="previewImagem('editarImagemInput', 'previewEditarImagem')">
-            <div id="previewEditarImagem" class="empty-state">Selecione uma imagem</div>
-            <button onclick="salvarEdicaoEncontro()">Salvar Alterações</button>
+            <div class="modal-header">Editar Encontro</div>
+            
+            <div class="form-group">
+                <label>Nome do Local</label>
+                <input type="text" id="editarNomeInput" placeholder="Digite o novo nome">
+            </div>
+
+            <div class="image-input-group">
+                <label>Nova Imagem (opcional)</label>
+                <input type="file" id="editarImagemInput" accept="image/*" onchange="previewImagem('editarImagemInput', 'previewEditarImagem')">
+                <div class="image-preview" id="previewEditarImagem">
+                    <div class="empty-state">Selecione uma imagem</div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn-modal btn-cancel" onclick="fecharModal('modalEditarEncontro')">Cancelar</button>
+                <button class="btn-modal btn-submit" onclick="salvarEdicaoEncontro()">Salvar</button>
+            </div>
         </div>
     </div>
 
-    <!-- Achievement Modal -->
-    <div id="achievementModal" class="modal">
+    <!-- Modal de Achievement -->
+    <div id="achievementModal" class="achievement-modal">
         <div class="achievement-content">
-            <span id="achievementIcon">🏆</span>
-            <div id="achievementTitle">PARABÉNS!</div>
-            <div id="achievementSubtitle">Agora vocês são: Conversantes</div>
-            <div id="achievementMessage">Mensagem aqui</div>
-            <button onclick="fecharAchievement()">Continuar</button>
+            <div class="achievement-icon" id="achievementIcon">🏆</div>
+            <div class="achievement-title" id="achievementTitle">Parabéns!</div>
+            <div class="achievement-subtitle" id="achievementSubtitle">Agora vocês são: Conversantes</div>
+            <div class="achievement-message" id="achievementMessage">Mensagem aqui</div>
+            <button class="achievement-button" onclick="fecharAchievement()">Continuar</button>
         </div>
     </div>
-
-    <!-- Firebase Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
 
     <script>
         // ============================================
-        // CONFIGURAÇÃO DO FIREBASE (CORREÇÃO FINAL)
+        // CONFIGURAÇÃO DO JSON BIN
         // ============================================
-        // INSTRUÇÕES: Substitua os valores abaixo pelas suas credenciais do Firebase
-        // 1. Acesse https://console.firebase.google.com
-        // 2. Crie um novo projeto
-        // 3. Ative o Firestore Database (modo teste)
-        // 4. Vá em "Configurações do Projeto" > "Aplicativos" > "Web"
-        // 5. Copie as credenciais e substitua abaixo
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBDsI99-q_lIguxeta6erbnoFuMcSv-qBw", // Cole aqui
-            authDomain: "projeto-1-717f0.firebaseapp.com", // Cole aqui
-            projectId: "projeto-1-717f0", // Cole aqui
-            storageBucket: "projeto-1-717f0.firebasestorage.app", // Cole aqui
-            messagingSenderId: "313396412559", // Cole aqui
-            appId: "1:313396412559:web:a967ed3a44bb341cf3f0fa" // Cole aqui
-        };
+        const JSON_BIN_API_URL = 'https://api.jsonbin.io/v3/b';
+        const JSON_BIN_BIN_ID = '68fe6f8643b1c97be982b87e';
+        const JSON_BIN_API_KEY = '$2a$10$dfYO6duBRx4YKbaNwUBFYuNvtRDeNZ52liKI0r9wAxbd7Zgvi1oMy';
 
         // ============================================
         // VARIÁVEIS GLOBAIS
@@ -529,110 +762,98 @@
         let encontroEditando = null;
         let usuarioAtual = null;
         let isAdmin = false;
-        let unsubscribe = null;
-        let db = null; // Declarado aqui
+        let binId = null;
 
         const encontrosExemplo = [
-            {
-                nome: "Mc'donalds (Barra Funda)",
-                imagem: null,
-                avaliacoes: [],
-                data: null,
-                isFuturo: false
-            },
-            {
-                nome: "Pastelaria da Ex noiva",
-                imagem: null,
-                avaliacoes: [],
-                data: null,
-                isFuturo: false
-            },
-            {
-                nome: "Pastelaria do bebum perdido",
-                imagem: null,
-                avaliacoes: [],
-                data: null,
-                isFuturo: false
-            },
-            {
-                nome: "Marmita de pagamento em 90 dias",
-                imagem: null,
-                avaliacoes: [],
-                data: null,
-                isFuturo: false
-            },
-            {
-                nome: "Conveniência Barra Funda (picolé preço de 2 leva 1)",
-                imagem: null,
-                avaliacoes: [],
-                data: null,
-                isFuturo: false
-            }
+            { nome: "Mc'donalds (Barra Funda)", imagem: null, avaliacoes: [], data: null, isFuturo: false },
+            { nome: "Pastelaria da Ex noiva", imagem: null, avaliacoes: [], data: null, isFuturo: false },
+            { nome: "Pastelaria do bebum perdido", imagem: null, avaliacoes: [], data: null, isFuturo: false },
+            { nome: "Marmita de pagamento em 90 dias", imagem: null, avaliacoes: [], data: null, isFuturo: false },
+            { nome: "Conveniência Barra Funda (picolé preço de 2 leva 1)", imagem: null, avaliacoes: [], data: null, isFuturo: false }
         ];
 
         // ============================================
         // INICIALIZAÇÃO
         // ============================================
         async function inicializar() {
-            // CORREÇÃO FINAL: Inicialização do Firebase aqui, garantindo que as bibliotecas
-            // já foram carregadas e o 'firebase' está definido.
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            
             obterUsuarioAtual();
-            isAdmin = usuarioAtual === 'alex';
+            isAdmin = usuarioAtual.toLowerCase() === 'alex';
             
-            // Verificar se é a primeira vez
-            const docRef = db.collection('config').doc('geral');
-            const docSnap = await docRef.get();
+            // Criar ou carregar bin
+            await criarOuCarregarBin();
             
-            if (!docSnap.exists()) {
-                // Primeira vez - criar dados de exemplo
-                await inicializarDadosExemplo();
-            }
+            // Carregar dados
+            await carregarDados();
             
-            // Configurar listener para sincronização em tempo real
-            configurarListenerEncontros();
+            // Renderizar
+            renderizarEncontros();
             atualizarPainelAdmin();
+
+            // Recarregar dados a cada 3 segundos para sincronização
+            setInterval(carregarDados, 3000);
         }
 
-        async function inicializarDadosExemplo() {
-            try {
-                for (const encontro of encontrosExemplo) {
-                    await db.collection('encontros').add({
-                        ...encontro,
-                        criadoEm: new Date()
+        async function criarOuCarregarBin() {
+            const binIdLocal = localStorage.getItem('jsonbin_bin_id');
+            
+            if (binIdLocal) {
+                binId = binIdLocal;
+            } else {
+                // Criar novo bin
+                try {
+                    const response = await fetch(JSON_BIN_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Master-Key': JSON_BIN_API_KEY
+                        },
+                        body: JSON.stringify({ encontros: encontrosExemplo })
                     });
+                    
+                    const data = await response.json();
+                    binId = data.metadata.id;
+                    localStorage.setItem('jsonbin_bin_id', binId);
+                } catch (error) {
+                    console.error('Erro ao criar bin:', error);
+                    alert('Erro ao conectar com o banco de dados. Tente novamente.');
                 }
-                await db.collection('config').doc('geral').set({
-                    inicializado: true
+            }
+        }
+
+        async function carregarDados() {
+            if (!binId) return;
+            
+            try {
+                const response = await fetch(`${JSON_BIN_API_URL}/${binId}/latest`, {
+                    headers: {
+                        'X-Master-Key': JSON_BIN_API_KEY
+                    }
+                });
+                
+                const data = await response.json();
+                encontros = data.record.encontros || [];
+                renderizarEncontros();
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            }
+        }
+
+        async function salvarDados() {
+            if (!binId) return;
+            
+            try {
+                await fetch(`${JSON_BIN_API_URL}/${binId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': JSON_BIN_API_KEY
+                    },
+                    body: JSON.stringify({ encontros: encontros })
                 });
             } catch (error) {
-                console.error('Erro ao inicializar dados:', error);
+                console.error('Erro ao salvar dados:', error);
+                alert('Erro ao salvar dados. Tente novamente.');
             }
-        }
-
-        function configurarListenerEncontros() {
-            // Se já existe um listener, remover
-            if (unsubscribe) {
-                unsubscribe();
-            }
-
-            // Configurar novo listener - SINCRONIZAÇÃO EM TEMPO REAL
-            unsubscribe = db.collection('encontros')
-                .orderBy('criadoEm', 'desc')
-                .onSnapshot((snapshot) => {
-                    encontros = [];
-                    snapshot.forEach((doc) => {
-                        encontros.push({
-                            id: doc.id,
-                            ...doc.data()
-                        });
-                    });
-                    renderizarEncontros();
-                }, (error) => {
-                    console.error('Erro ao carregar encontros:', error);
-                });
         }
 
         function obterUsuarioAtual() {
@@ -640,10 +861,10 @@
             if (!usuario) {
                 const nome = prompt('Qual é o seu nome?');
                 if (nome) {
-                    usuario = nome.toLowerCase().trim();
+                    usuario = nome;
                     sessionStorage.setItem('usuarioAtual', usuario);
                 } else {
-                    usuario = 'usuario_' + Math.random().toString(36).substr(2, 9);
+                    usuario = 'Usuário ' + Math.random().toString(36).substr(2, 9);
                     sessionStorage.setItem('usuarioAtual', usuario);
                 }
             }
@@ -656,14 +877,15 @@
         // ============================================
         function renderizarEncontros() {
             const grid = document.getElementById('encontrosGrid');
-            grid.innerHTML = '';
-
+            
             if (encontros.length === 0) {
                 grid.innerHTML = '<div class="loading">Nenhum encontro ainda. Crie um novo!</div>';
                 return;
             }
 
-            encontros.forEach(encontro => {
+            grid.innerHTML = '';
+
+            encontros.forEach((encontro, index) => {
                 const mediaNotas = encontro.avaliacoes.length > 0
                     ? (encontro.avaliacoes.reduce((sum, a) => sum + a.nota, 0) / encontro.avaliacoes.length).toFixed(1)
                     : 0;
@@ -679,7 +901,7 @@
                             `<img src="${encontro.imagem}" alt="${encontro.nome}" class="card-image">` : 
                             `<div class="placeholder-image">📸</div>`
                         }
-                        <button class="btn-edit-menu" onclick="abrirMenuEdicao(event, '${encontro.id}')">⚙️</button>
+                        <button class="btn-edit-menu" onclick="abrirMenuEdicao(event, ${index})">⚙️</button>
                     </div>
                     <div class="card-content">
                         <div class="card-title">
@@ -712,14 +934,13 @@
                         ${usuarioJaAvaliou ? `
                             <div class="already-rated">✓ Você já avaliou este local</div>
                         ` : `
-                            <button class="btn-avaliar" onclick="abrirModalAvaliar('${encontro.id}')">Avaliar</button>
+                            <button class="btn-avaliar" onclick="abrirModalAvaliar(${index})">Avaliar</button>
                         `}
                     </div>
                 `;
                 grid.appendChild(card);
             });
             
-            // Verificar achievement após renderizar
             verificarAchievement();
         }
 
@@ -755,9 +976,9 @@
             document.getElementById('marcarData').valueAsDate = new Date();
         }
 
-        function abrirModalAvaliar(id) {
-            encontroAtualId = id;
-            const encontro = encontros.find(e => e.id === id);
+        function abrirModalAvaliar(index) {
+            encontroAtualId = index;
+            const encontro = encontros[index];
             document.getElementById('avaliarTitulo').textContent = `Avaliar: ${encontro.nome}`;
             document.getElementById('modalAvaliar').style.display = 'block';
             estrelasSelecionadas = 0;
@@ -765,26 +986,21 @@
             document.getElementById('comentario').value = '';
         }
 
-        function abrirMenuEdicao(event, id) {
+        function abrirMenuEdicao(event, index) {
             event.stopPropagation();
             
-            // Remover menu anterior se existir
             const menuAnterior = document.querySelector('.edit-menu');
-            if (menuAnterior) {
-                menuAnterior.remove();
-            }
+            if (menuAnterior) menuAnterior.remove();
 
-            const encontro = encontros.find(e => e.id === id);
             const menu = document.createElement('div');
             menu.className = 'edit-menu';
             menu.innerHTML = `
-                <button onclick="abrirModalEditarEncontro('${id}')">✏️ Editar Nome/Foto</button>
-                ${isAdmin ? `<button onclick="excluirEncontro('${id}')">🗑️ Excluir</button>` : ''}
+                <button onclick="abrirModalEditarEncontro(${index})">✏️ Editar Nome/Foto</button>
+                ${isAdmin ? `<button onclick="excluirEncontro(${index})">🗑️ Excluir</button>` : ''}
             `;
             
             event.target.parentElement.appendChild(menu);
             
-            // Fechar menu ao clicar fora
             document.addEventListener('click', function fecharMenu(e) {
                 if (!menu.contains(e.target) && !e.target.classList.contains('btn-edit-menu')) {
                     menu.remove();
@@ -793,9 +1009,9 @@
             });
         }
 
-        function abrirModalEditarEncontro(id) {
-            encontroEditando = id;
-            const encontro = encontros.find(e => e.id === id);
+        function abrirModalEditarEncontro(index) {
+            encontroEditando = index;
+            const encontro = encontros[index];
             document.getElementById('editarNomeInput').value = encontro.nome;
             document.getElementById('modalEditarEncontro').style.display = 'block';
             document.getElementById('editarImagemInput').value = '';
@@ -833,32 +1049,23 @@
                 return;
             }
 
-            const encontro = encontros.find(e => e.id === encontroAtualId);
+            const encontro = encontros[encontroAtualId];
             
             if (encontro.avaliacoes.some(a => a.usuario === usuarioAtual)) {
                 alert('Você já avaliou este local!');
                 return;
             }
 
-            try {
-                const novaAvaliacao = {
-                    usuario: usuarioAtual,
-                    nota: estrelasSelecionadas,
-                    comentario: document.getElementById('comentario').value
-                };
+            encontro.avaliacoes.push({
+                usuario: usuarioAtual,
+                nota: estrelasSelecionadas,
+                comentario: document.getElementById('comentario').value
+            });
 
-                const avaliacoesAtualizadas = [...encontro.avaliacoes, novaAvaliacao];
-
-                await db.collection('encontros').doc(encontroAtualId).update({
-                    avaliacoes: avaliacoesAtualizadas
-                });
-
-                fecharModal('modalAvaliar');
-                alert('Avaliação enviada com sucesso!');
-            } catch (error) {
-                console.error('Erro ao enviar avaliação:', error);
-                alert('Erro ao enviar avaliação');
-            }
+            await salvarDados();
+            await carregarDados();
+            fecharModal('modalAvaliar');
+            alert('Avaliação enviada com sucesso!');
         }
 
         // ============================================
@@ -873,30 +1080,26 @@
                 return;
             }
 
-            try {
-                let imagem = null;
-                if (imagemInput.files.length > 0) {
-                    imagem = await lerArquivoComoBase64(imagemInput.files[0]);
-                }
-
-                await db.collection('encontros').add({
-                    nome: nome,
-                    imagem: imagem,
-                    avaliacoes: [],
-                    data: null,
-                    isFuturo: false,
-                    criadoEm: new Date()
-                });
-
-                fecharModal('modalNovoEncontro');
-                document.getElementById('novoNome').value = '';
-                imagemInput.value = '';
-                document.getElementById('previewNovaImagem').innerHTML = '<div class="empty-state">Selecione uma imagem</div>';
-                alert('Encontro adicionado com sucesso!');
-            } catch (error) {
-                console.error('Erro ao adicionar encontro:', error);
-                alert('Erro ao adicionar encontro');
+            let imagem = null;
+            if (imagemInput.files.length > 0) {
+                imagem = await lerArquivoComoBase64(imagemInput.files[0]);
             }
+
+            encontros.push({
+                nome: nome,
+                imagem: imagem,
+                avaliacoes: [],
+                data: null,
+                isFuturo: false
+            });
+
+            await salvarDados();
+            fecharModal('modalNovoEncontro');
+            document.getElementById('novoNome').value = '';
+            imagemInput.value = '';
+            document.getElementById('previewNovaImagem').innerHTML = '<div class="empty-state">Selecione uma imagem</div>';
+            alert('Encontro adicionado com sucesso!');
+            await carregarDados();
         }
 
         async function marcarNovoEncontro() {
@@ -914,34 +1117,27 @@
                 return;
             }
 
-            try {
-                let imagem = null;
-                if (imagemInput.files.length > 0) {
-                    imagem = await lerArquivoComoBase64(imagemInput.files[0]);
-                }
-
-                await db.collection('encontros').add({
-                    nome: nome,
-                    imagem: imagem,
-                    avaliacoes: [],
-                    data: data,
-                    isFuturo: true,
-                    criadoEm: new Date()
-                });
-
-                // Verificar achievement
-                verificarAchievement();
-
-                fecharModal('modalMarcarEncontro');
-                document.getElementById('marcarNome').value = '';
-                document.getElementById('marcarData').value = '';
-                imagemInput.value = '';
-                document.getElementById('previewMarcarImagem').innerHTML = '<div class="empty-state">Selecione uma imagem</div>';
-                alert('Encontro agendado com sucesso!');
-            } catch (error) {
-                console.error('Erro ao marcar encontro:', error);
-                alert('Erro ao marcar encontro');
+            let imagem = null;
+            if (imagemInput.files.length > 0) {
+                imagem = await lerArquivoComoBase64(imagemInput.files[0]);
             }
+
+            encontros.push({
+                nome: nome,
+                imagem: imagem,
+                avaliacoes: [],
+                data: data,
+                isFuturo: true
+            });
+
+            await salvarDados();
+            fecharModal('modalMarcarEncontro');
+            document.getElementById('marcarNome').value = '';
+            document.getElementById('marcarData').value = '';
+            imagemInput.value = '';
+            document.getElementById('previewMarcarImagem').innerHTML = '<div class="empty-state">Selecione uma imagem</div>';
+            alert('Encontro agendado com sucesso!');
+            await carregarDados();
         }
 
         // ============================================
@@ -950,49 +1146,39 @@
         async function salvarEdicaoEncontro() {
             const novoNome = document.getElementById('editarNomeInput').value.trim();
             const imagemInput = document.getElementById('editarImagemInput');
-            const encontro = encontros.find(e => e.id === encontroEditando);
+            const encontro = encontros[encontroEditando];
 
             if (!novoNome) {
                 alert('Por favor, insira um nome válido!');
                 return;
             }
 
-            try {
-                const atualizacoes = {
-                    nome: novoNome
-                };
+            encontro.nome = novoNome;
 
-                if (imagemInput.files.length > 0) {
-                    atualizacoes.imagem = await lerArquivoComoBase64(imagemInput.files[0]);
-                }
-
-                await db.collection('encontros').doc(encontroEditando).update(atualizacoes);
-
-                fecharModal('modalEditarEncontro');
-                alert('Encontro atualizado com sucesso!');
-            } catch (error) {
-                console.error('Erro ao atualizar encontro:', error);
-                alert('Erro ao atualizar encontro');
+            if (imagemInput.files.length > 0) {
+                encontro.imagem = await lerArquivoComoBase64(imagemInput.files[0]);
             }
+
+            await salvarDados();
+            fecharModal('modalEditarEncontro');
+            alert('Encontro atualizado com sucesso!');
+            await carregarDados();
         }
 
         // ============================================
         // EXCLUIR ENCONTRO (APENAS ADMIN)
         // ============================================
-        async function excluirEncontro(id) {
+        async function excluirEncontro(index) {
             if (!isAdmin) {
                 alert('Apenas administradores podem excluir encontros!');
                 return;
             }
 
             if (confirm('Tem certeza que deseja excluir este encontro?')) {
-                try {
-                    await db.collection('encontros').doc(id).delete();
-                    alert('Encontro excluído com sucesso!');
-                } catch (error) {
-                    console.error('Erro ao excluir encontro:', error);
-                    alert('Erro ao excluir encontro');
-                }
+                encontros.splice(index, 1);
+                await salvarDados();
+                alert('Encontro excluído com sucesso!');
+                await carregarDados();
             }
         }
 
@@ -1002,10 +1188,14 @@
         function verificarAchievement() {
             const encontrosMarcados = encontros.filter(e => e.isFuturo && !dataPassou(e.data)).length;
             
-            // Mostrar achievement apenas quando atingir múltiplos de 3
             if (encontrosMarcados % 3 === 0 && encontrosMarcados > 0) {
                 const ciclo = encontrosMarcados / 3;
-                mostrarAchievement(ciclo, encontrosMarcados);
+                const chave = `achievement_${ciclo}`;
+                
+                if (!sessionStorage.getItem(chave)) {
+                    sessionStorage.setItem(chave, 'true');
+                    mostrarAchievement(ciclo, encontrosMarcados);
+                }
             }
         }
 
@@ -1050,21 +1240,10 @@
             }
 
             if (confirm('Deseja resetar apenas os encontros marcados?')) {
-                try {
-                    const batch = db.batch();
-                    encontros.forEach(e => {
-                        if (e.isFuturo) {
-                            batch.update(db.collection('encontros').doc(e.id), {
-                                isFuturo: false
-                            });
-                        }
-                    });
-                    await batch.commit();
-                    alert('Encontros marcados resetados!');
-                } catch (error) {
-                    console.error('Erro ao resetar encontros marcados:', error);
-                    alert('Erro ao resetar encontros marcados');
-                }
+                encontros = encontros.map(e => ({...e, isFuturo: false}));
+                await salvarDados();
+                alert('Encontros marcados resetados!');
+                await carregarDados();
             }
         }
 
@@ -1075,21 +1254,10 @@
             }
 
             if (confirm('Tem certeza que deseja resetar TUDO? Essa ação não pode ser desfeita!')) {
-                try {
-                    // Deletar todos os encontros
-                    const batch = db.batch();
-                    encontros.forEach(e => {
-                        batch.delete(db.collection('encontros').doc(e.id));
-                    });
-                    await batch.commit();
-
-                    // Reinicializar com dados de exemplo
-                    await inicializarDadosExemplo();
-                    alert('Tudo foi resetado!');
-                } catch (error) {
-                    console.error('Erro ao resetar tudo:', error);
-                    alert('Erro ao resetar tudo');
-                }
+                encontros = JSON.parse(JSON.stringify(encontrosExemplo));
+                await salvarDados();
+                alert('Tudo foi resetado!');
+                await carregarDados();
             }
         }
 
@@ -1147,6 +1315,7 @@
             }
         }
 
+        // Inicializar quando a página carrega
         window.addEventListener('load', inicializar);
     </script>
 </body>
