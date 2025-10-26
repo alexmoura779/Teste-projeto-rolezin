@@ -99,7 +99,7 @@
         .card-image-container {
             position: relative;
             width: 100%;
-            height: 280px;
+            height: 400px;
             background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
             display: flex;
             align-items: center;
@@ -810,6 +810,14 @@
             return data.toLocaleDateString('pt-BR');
         }
 
+        function dataPassou(dataString) {
+            if (!dataString) return false;
+            const data = new Date(dataString + 'T00:00:00');
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            return data < hoje;
+        }
+
         function renderizarEncontros() {
             const grid = document.getElementById('encontrosGrid');
             grid.innerHTML = '';
@@ -836,7 +844,7 @@
                         <div class="card-title">
                             <div style="flex: 1;">
                                 ${encontro.nome}
-                                ${encontro.isFuturo ? '<span class="future-badge">FUTURO</span>' : ''}
+                                ${encontro.isFuturo && !dataPassou(encontro.data) ? '<span class="future-badge">FUTURO</span>' : ''}
                             </div>
                             <button class="btn-editar-nome" onclick="abrirModalEditarNome(${encontro.id})">✏️</button>
                         </div>
@@ -894,10 +902,18 @@
         }
 
         function obterUsuarioAtual() {
-            let usuario = localStorage.getItem('usuarioAtual');
+            let usuario = sessionStorage.getItem('usuarioAtual');
             if (!usuario) {
-                usuario = prompt('Qual é o seu nome?') || 'Usuário ' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('usuarioAtual', usuario);
+                const nome = prompt('Qual é o seu nome?');
+                const senha = prompt('Digite uma senha para este acesso');
+                if (nome && senha) {
+                    usuario = nome;
+                    sessionStorage.setItem('usuarioAtual', usuario);
+                    sessionStorage.setItem('usuarioSenha', senha);
+                } else {
+                    usuario = 'Usuário ' + Math.random().toString(36).substr(2, 9);
+                    sessionStorage.setItem('usuarioAtual', usuario);
+                }
             }
             return usuario;
         }
@@ -1059,7 +1075,7 @@
                     });
                     salvarDados();
                     renderizarEncontros();
-                    verificarAchievement(usuario);
+                    verificarAchievement(usuario, true);
                     fecharModal('modalMarcarEncontro');
                     document.getElementById('marcarNome').value = '';
                     document.getElementById('marcarData').value = '';
@@ -1084,8 +1100,10 @@
             }
         }
 
-        function verificarAchievement(usuario) {
-            const encontrosMarcadosUsuario = encontros.filter(e => e.isFuturo).length;
+        function verificarAchievement(usuario, novoEncontroMarcado = false) {
+            if (!novoEncontroMarcado) return;
+            
+            const encontrosMarcadosUsuario = encontros.filter(e => e.isFuturo && !dataPassou(e.data)).length;
             const chaveAchievement = `${usuario}_${encontrosMarcadosUsuario}`;
             
             if (encontrosMarcadosUsuario % 3 === 0 && encontrosMarcadosUsuario > 0 && !achievementsDesbloqueados[chaveAchievement]) {
