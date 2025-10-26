@@ -762,15 +762,17 @@
         // 5. Copie as credenciais e substitua abaixo
 
         const firebaseConfig = {
-            apiKey: "AIzaSyBDsI99-q_lIguxeta6erbnoFuMcSv-qBw",
-            authDomain: "projeto-1-717f0.firebaseapp.com",
-            projectId: "projeto-1-717f0",
-            storageBucket: "projeto-1-717f0.firebasestorage.app",
-            messagingSenderId: "313396412559",
-            appId: "1:313396412559:web:a967ed3a44bb341cf3f0fa"
+            apiKey: "SUBSTITUA_AQUI",
+            authDomain: "SUBSTITUA_AQUI",
+            projectId: "SUBSTITUA_AQUI",
+            storageBucket: "SUBSTITUA_AQUI",
+            messagingSenderId: "SUBSTITUA_AQUI",
+            appId: "SUBSTITUA_AQUI"
         };
 
         // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
         // ============================================
         // VARIÁVEIS GLOBAIS
@@ -782,7 +784,6 @@
         let usuarioAtual = null;
         let isAdmin = false;
         let unsubscribe = null;
-        let db = null;
 
         const encontrosExemplo = [
             {
@@ -826,10 +827,6 @@
         // INICIALIZAÇÃO
         // ============================================
         async function inicializar() {
-
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
-
             obterUsuarioAtual();
             isAdmin = usuarioAtual === 'alex';
             
@@ -1399,3 +1396,4 @@
     </script>
 </body>
 </html>
+
