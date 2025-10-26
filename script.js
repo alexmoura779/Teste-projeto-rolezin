@@ -18,6 +18,8 @@ const firebaseConfig = {
 };
 
 // Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 // ============================================
 // VARIÁVEIS GLOBAIS
@@ -29,7 +31,6 @@ let encontroEditando = null;
 let usuarioAtual = null;
 let isAdmin = false;
 let unsubscribe = null;
-let db = null;
 
 const encontrosExemplo = [
     {
@@ -73,9 +74,6 @@ const encontrosExemplo = [
 // INICIALIZAÇÃO
 // ============================================
 async function inicializar() {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.firestore();
-    
     obterUsuarioAtual();
     isAdmin = usuarioAtual === 'alex';
     
