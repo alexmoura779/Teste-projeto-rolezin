@@ -113,7 +113,7 @@
             object-fit: cover;
         }
 
-        .btn-editar-imagem {
+        .btn-edit-menu {
             position: absolute;
             top: 10px;
             right: 10px;
@@ -127,7 +127,7 @@
             transition: all 0.3s ease;
         }
 
-        .btn-editar-imagem:hover {
+        .btn-edit-menu:hover {
             background: rgba(0, 0, 0, 0.8);
         }
 
@@ -147,23 +147,6 @@
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-        }
-
-        .btn-editar-nome {
-            background: #f0f0f0;
-            color: #FF8C00;
-            border: 1px solid #ddd;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8em;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        .btn-editar-nome:hover {
-            background: #e0e0e0;
-            border-color: #FF8C00;
         }
 
         .card-date {
@@ -572,6 +555,54 @@
         .admin-btn:hover {
             opacity: 0.9;
         }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .edit-menu {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            min-width: 150px;
+        }
+
+        .edit-menu button {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.9em;
+            color: #333;
+            transition: background 0.2s ease;
+        }
+
+        .edit-menu button:hover {
+            background: #f5f5f5;
+        }
+
+        .edit-menu button:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .edit-menu button:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        .edit-menu button:not(:last-child) {
+            border-bottom: 1px solid #eee;
+        }
     </style>
 </head>
 <body>
@@ -588,6 +619,7 @@
         <div id="adminPanel"></div>
 
         <div class="encontros-grid" id="encontrosGrid">
+            <div class="loading">Carregando dados...</div>
         </div>
     </div>
 
@@ -677,41 +709,28 @@
         </div>
     </div>
 
-    <!-- Modal para Editar Imagem -->
-    <div id="modalEditarImagem" class="modal">
+    <!-- Modal para Editar Nome e Imagem -->
+    <div id="modalEditarEncontro" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="fecharModal('modalEditarImagem')">&times;</span>
-            <div class="modal-header">Editar Imagem do Encontro</div>
+            <span class="close" onclick="fecharModal('modalEditarEncontro')">&times;</span>
+            <div class="modal-header">Editar Encontro</div>
             
             <div class="image-input-group">
-                <label>Nova Imagem</label>
+                <label>Imagem do Local</label>
                 <input type="file" id="editarImagemInput" accept="image/*" onchange="previewImagem('editarImagemInput', 'previewEditarImagem')">
                 <div class="image-preview" id="previewEditarImagem">
                     <div class="empty-state">Selecione uma imagem</div>
                 </div>
             </div>
 
-            <div class="modal-buttons">
-                <button class="btn-modal btn-cancel" onclick="fecharModal('modalEditarImagem')">Cancelar</button>
-                <button class="btn-modal btn-submit" onclick="salvarNovaImagem()">Salvar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Editar Nome -->
-    <div id="modalEditarNome" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="fecharModal('modalEditarNome')">&times;</span>
-            <div class="modal-header">Editar Nome do Encontro</div>
-            
             <div class="form-group">
                 <label>Nome do Local</label>
                 <input type="text" id="editarNomeInput" placeholder="Digite o novo nome">
             </div>
 
             <div class="modal-buttons">
-                <button class="btn-modal btn-cancel" onclick="fecharModal('modalEditarNome')">Cancelar</button>
-                <button class="btn-modal btn-submit" onclick="salvarNovoNome()">Salvar</button>
+                <button class="btn-modal btn-cancel" onclick="fecharModal('modalEditarEncontro')">Cancelar</button>
+                <button class="btn-modal btn-submit" onclick="salvarEdicaoEncontro()">Salvar</button>
             </div>
         </div>
     </div>
@@ -722,22 +741,52 @@
             <div class="achievement-icon" id="achievementIcon">🏆</div>
             <div class="achievement-title" id="achievementTitle">Parabéns!</div>
             <div class="achievement-subtitle" id="achievementSubtitle">Agora vocês são: Conversantes</div>
-            <div class="achievement-message" id="achievementMessage">Mensagem aqui</div>
+            <div class="achievement-message" id="achievementMessage"></div>
             <button class="achievement-button" onclick="fecharAchievement()">Continuar</button>
         </div>
     </div>
 
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+
     <script>
+        // ============================================
+        // CONFIGURAÇÃO DO FIREBASE
+        // ============================================
+        // INSTRUÇÕES: Substitua os valores abaixo pelas suas credenciais do Firebase
+        // 1. Acesse https://console.firebase.google.com
+        // 2. Crie um novo projeto
+        // 3. Ative o Firestore Database (modo teste)
+        // 4. Vá em "Configurações do Projeto" > "Aplicativos" > "Web"
+        // 5. Copie as credenciais e substitua abaixo
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBDsI99-q_lIguxeta6erbnoFuMcSv-qBw",
+            authDomain: "projeto-1-717f0.firebaseapp.com",
+            projectId: "projeto-1-717f0",
+            storageBucket: "projeto-1-717f0.firebasestorage.app",
+            messagingSenderId: "313396412559",
+            appId: "1:313396412559:web:1c25f76e6a867997f3f0fa"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ============================================
+        // VARIÁVEIS GLOBAIS
+        // ============================================
         let encontros = [];
         let encontroAtualId = null;
         let estrelasSelecionadas = 0;
-        let encontroEditandoImagem = null;
-        let encontroEditandoNome = null;
-        let achievementsDesbloqueados = {};
+        let encontroEditando = null;
+        let usuarioAtual = null;
+        let isAdmin = false;
+        let unsubscribe = null;
 
         const encontrosExemplo = [
             {
-                id: 1,
                 nome: "Mc'donalds (Barra Funda)",
                 imagem: null,
                 avaliacoes: [],
@@ -745,7 +794,6 @@
                 isFuturo: false
             },
             {
-                id: 2,
                 nome: "Pastelaria da Ex noiva",
                 imagem: null,
                 avaliacoes: [],
@@ -753,7 +801,6 @@
                 isFuturo: false
             },
             {
-                id: 3,
                 nome: "Pastelaria do bebum perdido",
                 imagem: null,
                 avaliacoes: [],
@@ -761,7 +808,6 @@
                 isFuturo: false
             },
             {
-                id: 4,
                 nome: "Marmita de pagamento em 90 dias",
                 imagem: null,
                 avaliacoes: [],
@@ -769,7 +815,6 @@
                 isFuturo: false
             },
             {
-                id: 5,
                 nome: "Conveniência Barra Funda (picolé preço de 2 leva 1)",
                 imagem: null,
                 avaliacoes: [],
@@ -778,49 +823,93 @@
             }
         ];
 
-        function inicializar() {
-            const dados = localStorage.getItem('encontros');
-            if (dados) {
-                encontros = JSON.parse(dados);
-            } else {
-                encontros = JSON.parse(JSON.stringify(encontrosExemplo));
-                salvarDados();
+        // ============================================
+        // INICIALIZAÇÃO
+        // ============================================
+        async function inicializar() {
+            obterUsuarioAtual();
+            isAdmin = usuarioAtual === 'alex';
+            
+            // Verificar se é a primeira vez
+            const docRef = db.collection('config').doc('geral');
+            const docSnap = await docRef.get();
+            
+            if (!docSnap.exists()) {
+                // Primeira vez - criar dados de exemplo
+                await inicializarDadosExemplo();
             }
             
-            const achievementsData = localStorage.getItem('achievementsDesbloqueados');
-            if (achievementsData) {
-                achievementsDesbloqueados = JSON.parse(achievementsData);
-            }
-            
-            renderizarEncontros();
+            // Configurar listener para sincronização em tempo real
+            configurarListenerEncontros();
             atualizarPainelAdmin();
         }
 
-        function salvarDados() {
-            localStorage.setItem('encontros', JSON.stringify(encontros));
+        async function inicializarDadosExemplo() {
+            try {
+                for (const encontro of encontrosExemplo) {
+                    await db.collection('encontros').add({
+                        ...encontro,
+                        criadoEm: new Date()
+                    });
+                }
+                await db.collection('config').doc('geral').set({
+                    inicializado: true
+                });
+            } catch (error) {
+                console.error('Erro ao inicializar dados:', error);
+            }
         }
 
-        function salvarAchievements() {
-            localStorage.setItem('achievementsDesbloqueados', JSON.stringify(achievementsDesbloqueados));
+        function configurarListenerEncontros() {
+            // Se já existe um listener, remover
+            if (unsubscribe) {
+                unsubscribe();
+            }
+
+            // Configurar novo listener - SINCRONIZAÇÃO EM TEMPO REAL
+            unsubscribe = db.collection('encontros')
+                .orderBy('criadoEm', 'desc')
+                .onSnapshot((snapshot) => {
+                    encontros = [];
+                    snapshot.forEach((doc) => {
+                        encontros.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    renderizarEncontros();
+                }, (error) => {
+                    console.error('Erro ao carregar encontros:', error);
+                });
         }
 
-        function formatarData(dataString) {
-            if (!dataString) return '';
-            const data = new Date(dataString + 'T00:00:00');
-            return data.toLocaleDateString('pt-BR');
+        function obterUsuarioAtual() {
+            let usuario = sessionStorage.getItem('usuarioAtual');
+            if (!usuario) {
+                const nome = prompt('Qual é o seu nome?');
+                if (nome) {
+                    usuario = nome.toLowerCase().trim();
+                    sessionStorage.setItem('usuarioAtual', usuario);
+                } else {
+                    usuario = 'usuario_' + Math.random().toString(36).substr(2, 9);
+                    sessionStorage.setItem('usuarioAtual', usuario);
+                }
+            }
+            usuarioAtual = usuario;
+            return usuario;
         }
 
-        function dataPassou(dataString) {
-            if (!dataString) return false;
-            const data = new Date(dataString + 'T00:00:00');
-            const hoje = new Date();
-            hoje.setHours(0, 0, 0, 0);
-            return data < hoje;
-        }
-
+        // ============================================
+        // RENDERIZAÇÃO
+        // ============================================
         function renderizarEncontros() {
             const grid = document.getElementById('encontrosGrid');
             grid.innerHTML = '';
+
+            if (encontros.length === 0) {
+                grid.innerHTML = '<div class="loading">Nenhum encontro ainda. Crie um novo!</div>';
+                return;
+            }
 
             encontros.forEach(encontro => {
                 const mediaNotas = encontro.avaliacoes.length > 0
@@ -828,7 +917,7 @@
                     : 0;
 
                 const estrelas = '★'.repeat(Math.round(mediaNotas)) + '☆'.repeat(5 - Math.round(mediaNotas));
-                const usuarioJaAvaliou = encontro.avaliacoes.some(a => a.usuario === obterUsuarioAtual());
+                const usuarioJaAvaliou = encontro.avaliacoes.some(a => a.usuario === usuarioAtual);
 
                 const card = document.createElement('div');
                 card.className = 'encontro-card';
@@ -838,7 +927,7 @@
                             `<img src="${encontro.imagem}" alt="${encontro.nome}" class="card-image">` : 
                             `<div class="placeholder-image">📸</div>`
                         }
-                        <button class="btn-editar-imagem" onclick="abrirModalEditarImagem(${encontro.id})">📷 Editar</button>
+                        <button class="btn-edit-menu" onclick="abrirMenuEdicao(event, '${encontro.id}')">⚙️</button>
                     </div>
                     <div class="card-content">
                         <div class="card-title">
@@ -846,7 +935,6 @@
                                 ${encontro.nome}
                                 ${encontro.isFuturo && !dataPassou(encontro.data) ? '<span class="future-badge">FUTURO</span>' : ''}
                             </div>
-                            <button class="btn-editar-nome" onclick="abrirModalEditarNome(${encontro.id})">✏️</button>
                         </div>
                         ${encontro.data ? `<div class="card-date">📅 ${formatarData(encontro.data)}</div>` : ''}
                         <div class="card-rating">
@@ -872,7 +960,7 @@
                         ${usuarioJaAvaliou ? `
                             <div class="already-rated">✓ Você já avaliou este local</div>
                         ` : `
-                            <button class="btn-avaliar" onclick="abrirModalAvaliar(${encontro.id})">Avaliar</button>
+                            <button class="btn-avaliar" onclick="abrirModalAvaliar('${encontro.id}')">Avaliar</button>
                         `}
                     </div>
                 `;
@@ -881,14 +969,13 @@
         }
 
         function atualizarPainelAdmin() {
-            const usuario = obterUsuarioAtual();
             const panel = document.getElementById('adminPanel');
             
-            if (usuario === 'ALEX') {
-                const encontrosMarcados = encontros.filter(e => e.isFuturo).length;
+            if (isAdmin) {
+                const encontrosMarcados = encontros.filter(e => e.isFuturo && !dataPassou(e.data)).length;
                 panel.innerHTML = `
                     <div class="admin-panel">
-                        <h3>🔐 Painel de Administrador</h3>
+                        <h3>🔐 Painel de Administrador (${usuarioAtual})</h3>
                         <p>Encontros marcados: ${encontrosMarcados}</p>
                         <div class="admin-buttons">
                             <button class="admin-btn" onclick="resetarEncontrosMarcados()">Resetar Encontros Marcados</button>
@@ -901,23 +988,9 @@
             }
         }
 
-        function obterUsuarioAtual() {
-            let usuario = sessionStorage.getItem('usuarioAtual');
-            if (!usuario) {
-                const nome = prompt('Qual é o seu nome?');
-                const senha = prompt('Digite uma senha para este acesso');
-                if (nome && senha) {
-                    usuario = nome;
-                    sessionStorage.setItem('usuarioAtual', usuario);
-                    sessionStorage.setItem('usuarioSenha', senha);
-                } else {
-                    usuario = 'Usuário ' + Math.random().toString(36).substr(2, 9);
-                    sessionStorage.setItem('usuarioAtual', usuario);
-                }
-            }
-            return usuario;
-        }
-
+        // ============================================
+        // MODAIS
+        // ============================================
         function abrirModalNovoEncontro() {
             document.getElementById('modalNovoEncontro').style.display = 'block';
         }
@@ -937,24 +1010,52 @@
             document.getElementById('comentario').value = '';
         }
 
-        function abrirModalEditarImagem(id) {
-            encontroEditandoImagem = id;
-            document.getElementById('modalEditarImagem').style.display = 'block';
-            document.getElementById('editarImagemInput').value = '';
-            document.getElementById('previewEditarImagem').innerHTML = '<div class="empty-state">Selecione uma imagem</div>';
+        function abrirMenuEdicao(event, id) {
+            event.stopPropagation();
+            
+            // Remover menu anterior se existir
+            const menuAnterior = document.querySelector('.edit-menu');
+            if (menuAnterior) {
+                menuAnterior.remove();
+            }
+
+            const encontro = encontros.find(e => e.id === id);
+            const menu = document.createElement('div');
+            menu.className = 'edit-menu';
+            menu.innerHTML = `
+                <button onclick="abrirModalEditarEncontro('${id}')">✏️ Editar Nome/Foto</button>
+                ${isAdmin ? `<button onclick="excluirEncontro('${id}')">🗑️ Excluir</button>` : ''}
+            `;
+            
+            event.target.parentElement.appendChild(menu);
+            
+            // Fechar menu ao clicar fora
+            document.addEventListener('click', function fecharMenu(e) {
+                if (!menu.contains(e.target) && !e.target.classList.contains('btn-edit-menu')) {
+                    menu.remove();
+                    document.removeEventListener('click', fecharMenu);
+                }
+            });
         }
 
-        function abrirModalEditarNome(id) {
-            encontroEditandoNome = id;
+        function abrirModalEditarEncontro(id) {
+            encontroEditando = id;
             const encontro = encontros.find(e => e.id === id);
             document.getElementById('editarNomeInput').value = encontro.nome;
-            document.getElementById('modalEditarNome').style.display = 'block';
+            document.getElementById('modalEditarEncontro').style.display = 'block';
+            document.getElementById('editarImagemInput').value = '';
+            document.getElementById('previewEditarImagem').innerHTML = encontro.imagem 
+                ? `<img src="${encontro.imagem}" alt="Preview">` 
+                : '<div class="empty-state">Selecione uma imagem</div>';
         }
 
         function fecharModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
 
+        // ============================================
+        // AVALIAÇÕES
+        // ============================================
         function selecionarEstrela(numero) {
             estrelasSelecionadas = numero;
             atualizarEstrelas();
@@ -971,33 +1072,44 @@
             });
         }
 
-        function enviarAvaliacao() {
+        async function enviarAvaliacao() {
             if (estrelasSelecionadas === 0) {
                 alert('Por favor, selecione uma nota!');
                 return;
             }
 
             const encontro = encontros.find(e => e.id === encontroAtualId);
-            const usuario = obterUsuarioAtual();
-
-            if (encontro.avaliacoes.some(a => a.usuario === usuario)) {
+            
+            if (encontro.avaliacoes.some(a => a.usuario === usuarioAtual)) {
                 alert('Você já avaliou este local!');
                 return;
             }
 
-            encontro.avaliacoes.push({
-                usuario: usuario,
-                nota: estrelasSelecionadas,
-                comentario: document.getElementById('comentario').value
-            });
+            try {
+                const novaAvaliacao = {
+                    usuario: usuarioAtual,
+                    nota: estrelasSelecionadas,
+                    comentario: document.getElementById('comentario').value
+                };
 
-            salvarDados();
-            renderizarEncontros();
-            fecharModal('modalAvaliar');
-            alert('Avaliação enviada com sucesso!');
+                const avaliacoesAtualizadas = [...encontro.avaliacoes, novaAvaliacao];
+
+                await db.collection('encontros').doc(encontroAtualId).update({
+                    avaliacoes: avaliacoesAtualizadas
+                });
+
+                fecharModal('modalAvaliar');
+                alert('Avaliação enviada com sucesso!');
+            } catch (error) {
+                console.error('Erro ao enviar avaliação:', error);
+                alert('Erro ao enviar avaliação');
+            }
         }
 
-        function adicionarNovoEncontro() {
+        // ============================================
+        // ADICIONAR/MARCAR ENCONTROS
+        // ============================================
+        async function adicionarNovoEncontro() {
             const nome = document.getElementById('novoNome').value.trim();
             const imagemInput = document.getElementById('novaImagemInput');
 
@@ -1006,49 +1118,36 @@
                 return;
             }
 
-            const novoId = Math.max(...encontros.map(e => e.id), 0) + 1;
-            
-            if (imagemInput.files.length > 0) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    encontros.push({
-                        id: novoId,
-                        nome: nome,
-                        imagem: e.target.result,
-                        avaliacoes: [],
-                        data: null,
-                        isFuturo: false
-                    });
-                    salvarDados();
-                    renderizarEncontros();
-                    fecharModal('modalNovoEncontro');
-                    document.getElementById('novoNome').value = '';
-                    imagemInput.value = '';
-                    alert('Encontro adicionado com sucesso!');
-                };
-                reader.readAsDataURL(imagemInput.files[0]);
-            } else {
-                encontros.push({
-                    id: novoId,
+            try {
+                let imagem = null;
+                if (imagemInput.files.length > 0) {
+                    imagem = await lerArquivoComoBase64(imagemInput.files[0]);
+                }
+
+                await db.collection('encontros').add({
                     nome: nome,
-                    imagem: null,
+                    imagem: imagem,
                     avaliacoes: [],
                     data: null,
-                    isFuturo: false
+                    isFuturo: false,
+                    criadoEm: new Date()
                 });
-                salvarDados();
-                renderizarEncontros();
+
                 fecharModal('modalNovoEncontro');
                 document.getElementById('novoNome').value = '';
+                imagemInput.value = '';
+                document.getElementById('previewNovaImagem').innerHTML = '<div class="empty-state">Selecione uma imagem</div>';
                 alert('Encontro adicionado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao adicionar encontro:', error);
+                alert('Erro ao adicionar encontro');
             }
         }
 
-        function marcarNovoEncontro() {
+        async function marcarNovoEncontro() {
             const nome = document.getElementById('marcarNome').value.trim();
             const data = document.getElementById('marcarData').value;
             const imagemInput = document.getElementById('marcarImagemInput');
-            const usuario = obterUsuarioAtual();
 
             if (!nome) {
                 alert('Por favor, insira o nome do local!');
@@ -1060,62 +1159,102 @@
                 return;
             }
 
-            const novoId = Math.max(...encontros.map(e => e.id), 0) + 1;
+            try {
+                let imagem = null;
+                if (imagemInput.files.length > 0) {
+                    imagem = await lerArquivoComoBase64(imagemInput.files[0]);
+                }
 
-            if (imagemInput.files.length > 0) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    encontros.push({
-                        id: novoId,
-                        nome: nome,
-                        imagem: e.target.result,
-                        avaliacoes: [],
-                        data: data,
-                        isFuturo: true
-                    });
-                    salvarDados();
-                    renderizarEncontros();
-                    verificarAchievement(usuario, true);
-                    fecharModal('modalMarcarEncontro');
-                    document.getElementById('marcarNome').value = '';
-                    document.getElementById('marcarData').value = '';
-                    imagemInput.value = '';
-                };
-                reader.readAsDataURL(imagemInput.files[0]);
-            } else {
-                encontros.push({
-                    id: novoId,
+                await db.collection('encontros').add({
                     nome: nome,
-                    imagem: null,
+                    imagem: imagem,
                     avaliacoes: [],
                     data: data,
-                    isFuturo: true
+                    isFuturo: true,
+                    criadoEm: new Date()
                 });
-                salvarDados();
-                renderizarEncontros();
-                verificarAchievement(usuario);
+
+                // Verificar achievement
+                verificarAchievement();
+
                 fecharModal('modalMarcarEncontro');
                 document.getElementById('marcarNome').value = '';
                 document.getElementById('marcarData').value = '';
+                imagemInput.value = '';
+                document.getElementById('previewMarcarImagem').innerHTML = '<div class="empty-state">Selecione uma imagem</div>';
+                alert('Encontro agendado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao marcar encontro:', error);
+                alert('Erro ao marcar encontro');
             }
         }
 
-        function verificarAchievement(usuario, novoEncontroMarcado = false) {
-            if (!novoEncontroMarcado) return;
-            
-            const encontrosMarcadosUsuario = encontros.filter(e => e.isFuturo && !dataPassou(e.data)).length;
-            const chaveAchievement = `${usuario}_${encontrosMarcadosUsuario}`;
-            
-            if (encontrosMarcadosUsuario % 3 === 0 && encontrosMarcadosUsuario > 0 && !achievementsDesbloqueados[chaveAchievement]) {
-                achievementsDesbloqueados[chaveAchievement] = true;
-                salvarAchievements();
-                
-                const ciclo = encontrosMarcadosUsuario / 3;
-                mostrarAchievement(usuario, ciclo, encontrosMarcadosUsuario);
+        // ============================================
+        // EDITAR ENCONTRO
+        // ============================================
+        async function salvarEdicaoEncontro() {
+            const novoNome = document.getElementById('editarNomeInput').value.trim();
+            const imagemInput = document.getElementById('editarImagemInput');
+            const encontro = encontros.find(e => e.id === encontroEditando);
+
+            if (!novoNome) {
+                alert('Por favor, insira um nome válido!');
+                return;
+            }
+
+            try {
+                const atualizacoes = {
+                    nome: novoNome
+                };
+
+                if (imagemInput.files.length > 0) {
+                    atualizacoes.imagem = await lerArquivoComoBase64(imagemInput.files[0]);
+                }
+
+                await db.collection('encontros').doc(encontroEditando).update(atualizacoes);
+
+                fecharModal('modalEditarEncontro');
+                alert('Encontro atualizado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao atualizar encontro:', error);
+                alert('Erro ao atualizar encontro');
             }
         }
 
-        function mostrarAchievement(usuario, ciclo, totalEncontros) {
+        // ============================================
+        // EXCLUIR ENCONTRO (APENAS ADMIN)
+        // ============================================
+        async function excluirEncontro(id) {
+            if (!isAdmin) {
+                alert('Apenas administradores podem excluir encontros!');
+                return;
+            }
+
+            if (confirm('Tem certeza que deseja excluir este encontro?')) {
+                try {
+                    await db.collection('encontros').doc(id).delete();
+                    alert('Encontro excluído com sucesso!');
+                } catch (error) {
+                    console.error('Erro ao excluir encontro:', error);
+                    alert('Erro ao excluir encontro');
+                }
+            }
+        }
+
+        // ============================================
+        // ACHIEVEMENTS
+        // ============================================
+        function verificarAchievement() {
+            const encontrosMarcados = encontros.filter(e => e.isFuturo && !dataPassou(e.data)).length;
+            
+            // Mostrar achievement apenas quando atingir múltiplos de 3
+            if (encontrosMarcados % 3 === 0 && encontrosMarcados > 0) {
+                const ciclo = encontrosMarcados / 3;
+                mostrarAchievement(ciclo, encontrosMarcados);
+            }
+        }
+
+        function mostrarAchievement(ciclo, totalEncontros) {
             let achievement;
             let mensagem;
             
@@ -1135,7 +1274,7 @@
             }
             
             document.getElementById('achievementIcon').textContent = achievement.emoji;
-            document.getElementById('achievementTitle').textContent = `Parabéns, ${usuario}!`;
+            document.getElementById('achievementTitle').textContent = `Parabéns, ${usuarioAtual}!`;
             document.getElementById('achievementSubtitle').textContent = `Agora vocês são: ${achievement.titulo}`;
             document.getElementById('achievementMessage').textContent = mensagem;
             
@@ -1146,69 +1285,74 @@
             document.getElementById('achievementModal').style.display = 'none';
         }
 
-        function resetarEncontrosMarcados() {
+        // ============================================
+        // ADMIN - RESET
+        // ============================================
+        async function resetarEncontrosMarcados() {
+            if (!isAdmin) {
+                alert('Apenas administradores podem fazer isso!');
+                return;
+            }
+
             if (confirm('Deseja resetar apenas os encontros marcados?')) {
-                encontros = encontros.map(e => ({...e, isFuturo: false}));
-                salvarDados();
-                renderizarEncontros();
-                atualizarPainelAdmin();
-                alert('Encontros marcados resetados!');
-            }
-        }
-
-        function resetarTudo() {
-            if (confirm('Tem certeza que deseja resetar TUDO? Essa ação não pode ser desfeita!')) {
-                localStorage.removeItem('encontros');
-                localStorage.removeItem('achievementsDesbloqueados');
-                localStorage.removeItem('usuarioAtual');
-                encontros = JSON.parse(JSON.stringify(encontrosExemplo));
-                achievementsDesbloqueados = {};
-                salvarDados();
-                salvarAchievements();
-                renderizarEncontros();
-                atualizarPainelAdmin();
-                alert('Tudo foi resetado!');
-            }
-        }
-
-        function salvarNovaImagem() {
-            const imagemInput = document.getElementById('editarImagemInput');
-
-            if (imagemInput.files.length === 0) {
-                alert('Por favor, selecione uma imagem!');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const encontro = encontros.find(enc => enc.id === encontroEditandoImagem);
-                if (encontro) {
-                    encontro.imagem = e.target.result;
-                    salvarDados();
-                    renderizarEncontros();
-                    fecharModal('modalEditarImagem');
-                    alert('Imagem atualizada com sucesso!');
+                try {
+                    const batch = db.batch();
+                    encontros.forEach(e => {
+                        if (e.isFuturo) {
+                            batch.update(db.collection('encontros').doc(e.id), {
+                                isFuturo: false
+                            });
+                        }
+                    });
+                    await batch.commit();
+                    alert('Encontros marcados resetados!');
+                } catch (error) {
+                    console.error('Erro ao resetar encontros marcados:', error);
+                    alert('Erro ao resetar encontros marcados');
                 }
-            };
-            reader.readAsDataURL(imagemInput.files[0]);
+            }
         }
 
-        function salvarNovoNome() {
-            const novoNome = document.getElementById('editarNomeInput').value.trim();
-
-            if (!novoNome) {
-                alert('Por favor, insira um nome válido!');
+        async function resetarTudo() {
+            if (!isAdmin) {
+                alert('Apenas administradores podem fazer isso!');
                 return;
             }
 
-            const encontro = encontros.find(enc => enc.id === encontroEditandoNome);
-            if (encontro) {
-                encontro.nome = novoNome;
-                salvarDados();
-                renderizarEncontros();
-                fecharModal('modalEditarNome');
-                alert('Nome atualizado com sucesso!');
+            if (confirm('Tem certeza que deseja resetar TUDO? Essa ação não pode ser desfeita!')) {
+                try {
+                    // Deletar todos os encontros
+                    const batch = db.batch();
+                    encontros.forEach(e => {
+                        batch.delete(db.collection('encontros').doc(e.id));
+                    });
+                    await batch.commit();
+
+                    // Reinicializar com dados de exemplo
+                    await inicializarDadosExemplo();
+                    alert('Tudo foi resetado!');
+                } catch (error) {
+                    console.error('Erro ao resetar tudo:', error);
+                    alert('Erro ao resetar tudo');
+                }
             }
+        }
+
+        // ============================================
+        // UTILITÁRIOS
+        // ============================================
+        function formatarData(dataString) {
+            if (!dataString) return '';
+            const data = new Date(dataString + 'T00:00:00');
+            return data.toLocaleDateString('pt-BR');
+        }
+
+        function dataPassou(dataString) {
+            if (!dataString) return false;
+            const data = new Date(dataString + 'T00:00:00');
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            return data < hoje;
         }
 
         function previewImagem(inputId, previewId) {
@@ -1224,8 +1368,17 @@
             }
         }
 
+        function lerArquivoComoBase64(arquivo) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(arquivo);
+            });
+        }
+
         window.onclick = function(event) {
-            const modals = ['modalNovoEncontro', 'modalMarcarEncontro', 'modalAvaliar', 'modalEditarImagem', 'modalEditarNome'];
+            const modals = ['modalNovoEncontro', 'modalMarcarEncontro', 'modalAvaliar', 'modalEditarEncontro'];
             modals.forEach(id => {
                 const modal = document.getElementById(id);
                 if (event.target === modal) {
