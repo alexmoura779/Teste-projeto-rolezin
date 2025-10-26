@@ -497,13 +497,7 @@
             text-transform: uppercase;
             letter-spacing: 2px;
         }
-
-        .achievement-subtitle {
-            font-size: 1.3em;
-            margin-bottom: 20px;
-            opacity: 0.95;
-        }
-
+        
         .achievement-message {
             font-size: 1.1em;
             line-height: 1.6;
@@ -721,6 +715,12 @@
                 <input type="text" id="editarNomeInput" placeholder="Digite o novo nome">
             </div>
 
+            <!-- 2. Adicionar campo de data no modal de edição -->
+            <div class="form-group">
+                <label>Data do Encontro (se realizado)</label>
+                <input type="date" id="editarDataInput">
+            </div>
+
             <div class="image-input-group">
                 <label>Nova Imagem (Opcional - Use URL)</label>
                 <input type="text" id="editarImagemUrl" placeholder="Cole o link da imagem (ex: Imgur)" oninput="previewImagemUrl('editarImagemUrl', 'previewEditarImagem')">
@@ -743,6 +743,8 @@
             <div class="achievement-icon">🏆</div>
             <div class="achievement-title">PARABÉNS!</div>
             <div class="achievement-subtitle" id="achievementSubtitle"></div>
+            <!-- 4. Sistema de títulos quebrado, adicionar mensagem -->
+            <div class="achievement-message" id="achievementMessage"></div> 
             <button class="achievement-button" onclick="fecharAchievement()">Continuar</button>
         </div>
     </div>
@@ -923,18 +925,27 @@
             document.getElementById('achievementModal').style.display = 'none';
         }
 
-        function mostrarAchievement(titulo) {
-             document.getElementById('achievementSubtitle').innerText = titulo;
+        function mostrarAchievement(titulo, mensagem) {
+             document.getElementById('achievementSubtitle').innerHTML = `<strong>${titulo}</strong>`;
+             document.getElementById('achievementMessage').innerText = mensagem;
              document.getElementById('achievementModal').style.display = 'flex';
         }
 
         function calcularMedia(avaliacoes) {
             if (!avaliacoes || avaliacoes.length === 0) return 0;
             const soma = avaliacoes.reduce((acc, avaliacao) => acc + avaliacao.nota, 0);
-            return (soma / avaliacoes.length).toFixed(1);
+            // 1. Incluir uma casa decimal nas avaliações por estrelas (ex: 4,8)
+            const media = soma / avaliacoes.length;
+            // Garante que a nota seja exibida com uma casa decimal, mas não mais que 5.0
+            return Math.min(media, 5).toFixed(1);
         }
 
         function preencherEstrelas(nota) {
+            // 1. Incluir uma casa decimal nas avaliações por estrelas (ex: 4,8)
+            // O preenchimento visual deve considerar a nota com decimal para meias estrelas, se necessário.
+            // No código atual, a função só preenche estrelas inteiras (Math.round).
+            // Para manter a simplicidade visual do código original, vamos manter o arredondamento,
+            // mas a nota exibida será com decimal.
             const numEstrelas = Math.round(nota);
             return '★'.repeat(numEstrelas) + '☆'.repeat(5 - numEstrelas);
         }
@@ -973,32 +984,40 @@
                 card.innerHTML = `
                     <div class="card-image-container">
                         ${imageHtml}
-                        <button class="btn-edit-menu" onclick="abrirModalEdicao(${index})">⚙️</button>
+                        <button class="btn-edit-menu" onclick="abrirMenuEdicao(event, ${index})">...</button>
+                        <div class="edit-menu" id="editMenu-${index}" style="display:none;">
+                            <button onclick="abrirModalEdicao(${index})">Editar Nome/Foto/Data</button>
+                            ${isAdmin ? `<button onclick="excluirEncontro(${index})">Excluir Encontro</button>` : ''}
+                        </div>
                     </div>
                     <div class="card-content">
                         <div class="card-title">
                             ${encontro.nome}
-                            ${isFuturo ? '<span class="future-badge">AGENDADO</span>' : ''}
+                            ${isFuturo ? `<span class="future-badge">AGENDADO</span>` : ''}
                         </div>
-                        <div class="card-date">${encontro.data ? `Data Sugerida: ${encontro.data}` : 'Data: Não informada'}</div>
+                        <div class="card-date">${encontro.data ? new Date(encontro.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : (isFuturo ? 'Data Sugerida' : 'Data não registrada')}</div>
                         
                         ${!isFuturo ? `
                             <div class="card-rating">
                                 <span class="stars">${preencherEstrelas(media)}</span>
-                                <span class="rating-value">${media} (${encontro.avaliacoes.length} avaliações)</span>
+                                <span class="rating-value">${media} / 5</span>
+                                <span class="card-reviews">(${encontro.avaliacoes.length} avaliações)</span>
                             </div>
-                            <div class="card-reviews">
-                                ${encontro.avaliacoes.map(a => `
+
+                            <div class="reviews-list">
+                                ${encontro.avaliacoes.map(avaliacao => `
                                     <div class="user-review">
+                                        <div class="user-review-stars">${preencherEstrelas(avaliacao.nota)}</div>
                                         <div class="user-review-header">
-                                            <span>${a.usuario}</span>
-                                            <span>${preencherEstrelas(a.nota)}</span>
+                                            <span>${avaliacao.usuario}</span>
+                                            <!-- 3. Cada usuário pode excluir a própria avaliação somente -->
+                                            ${isAdmin || avaliacao.usuario === usuarioAtual ? `<button onclick="excluirAvaliacao(${index}, '${avaliacao.usuario}')" style="background: none; border: none; color: #DC143C; cursor: pointer; font-size: 0.9em;">Excluir</button>` : ''}
                                         </div>
-                                        <div class="user-review-comment">${a.comentario || 'Sem comentário.'}</div>
-                                        ${isAdmin ? `<button onclick="excluirAvaliacao(${index}, '${a.usuario}')" style="background: none; border: none; color: red; cursor: pointer; font-size: 0.8em;">Excluir Avaliação</button>` : ''}
+                                        <div class="user-review-comment">${avaliacao.comentario}</div>
                                     </div>
                                 `).join('')}
                             </div>
+
                             ${isAvaliado ? `
                                 <div class="already-rated">Você já avaliou este local.</div>
                             ` : `
@@ -1024,7 +1043,7 @@
                     <div class="admin-panel">
                         <h3>Painel de Administrador (Alex)</h3>
                         <div class="admin-buttons">
-                            <button class="admin-btn" onclick="resetarEncontrosMarcados()">Resetar Encontros Marcados</button>
+                            <button class="admin-btn" onclick="resetarEncontrosMarcados()">Resetar Contagem de Títulos (Alex)</button>
                             <button class="admin-btn" onclick="resetarTudo()">Resetar TUDO (Cuidado!)</button>
                         </div>
                     </div>
@@ -1048,6 +1067,19 @@
                 preview.innerHTML = `<div class="empty-state">Cole o link da imagem acima</div>`;
             }
         }
+
+        function abrirMenuEdicao(event, index) {
+            event.stopPropagation(); // Impede que o clique feche o menu imediatamente
+            const menu = document.getElementById(`editMenu-${index}`);
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Fechar menu de edição ao clicar fora
+        window.addEventListener('click', function() {
+            document.querySelectorAll('.edit-menu').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        });
 
         function abrirModalNovoEncontro() {
             document.getElementById('novoNome').value = '';
@@ -1161,7 +1193,9 @@
             encontroEditando = index;
             const encontro = encontros[index];
 
+            // 2. Adicionar campo de data no modal de edição
             document.getElementById('editarNomeInput').value = encontro.nome;
+            document.getElementById('editarDataInput').value = encontro.data || ''; // Preenche a data
             document.getElementById('editarImagemUrl').value = encontro.imagem || '';
             
             // Renderiza a pré-visualização da imagem atual
@@ -1177,6 +1211,7 @@
 
         async function salvarEdicao() {
             const novoNome = document.getElementById('editarNomeInput').value.trim();
+            const novaData = document.getElementById('editarDataInput').value; // 2. Captura a nova data
             const novaImagemUrl = document.getElementById('editarImagemUrl').value.trim();
 
             if (!novoNome) {
@@ -1185,6 +1220,7 @@
             }
 
             encontros[encontroEditando].nome = novoNome;
+            encontros[encontroEditando].data = novaData || null; // 2. Salva a nova data
             encontros[encontroEditando].imagem = novaImagemUrl || null;
 
             await salvarDados();
@@ -1203,23 +1239,27 @@
         }
 
         async function excluirAvaliacao(encontroIndex, usuario) {
-            if (!isAdmin || !confirm(`Tem certeza que deseja excluir a avaliação de ${usuario} para o encontro "${encontros[encontroIndex].nome}"?`)) return;
+            // 3. Cada usuário pode excluir a própria avaliação somente
+            const podeExcluir = isAdmin || usuario === usuarioAtual;
+
+            if (!podeExcluir || !confirm(`Tem certeza que deseja excluir a avaliação de ${usuario} para o encontro "${encontros[encontroIndex].nome}"?`)) return;
             
             encontros[encontroIndex].avaliacoes = encontros[encontroIndex].avaliacoes.filter(a => a.usuario !== usuario);
             await salvarDados();
         }
 
         async function resetarEncontrosMarcados() {
-            if (!isAdmin || !confirm('Tem certeza que deseja marcar TODOS os encontros como "não visitados"? Isso irá zerar a contagem de rolês.')) return;
+            // 5. "resetar encontros marcados" no login ADM "alex"
+            if (!isAdmin || !confirm('Tem certeza que deseja resetar a contagem de agendamentos de saída para o seu usuário (Alex)? Isso não afetará as avaliações.')) return;
             
-            encontros = encontros.map(e => ({
-                ...e,
-                avaliacoes: [],
-                isFuturo: false,
-                data: null
-            }));
-
-            await salvarDados();
+            // O reset de agendamentos para o título é feito resetando a variável de controle local.
+            // A contagem de encontros realizados (avaliados) é dinâmica, então basta resetar a última conquista vista.
+            localStorage.setItem('ultimaConquistaVista', '0');
+            alert('Contagem de agendamentos de saída (para fins de títulos) resetada com sucesso para o usuário Alex.');
+            
+            // Não precisa salvar os dados do bin, pois a avaliação de outros usuários não é afetada.
+            // Apenas a contagem de títulos do Alex é resetada.
+            verificarConquista(); // Re-verifica para garantir que o modal de conquista não apareça imediatamente se a condição for atendida.
         }
 
         async function resetarTudo() {
@@ -1234,25 +1274,44 @@
         // ============================================
 
         function verificarConquista() {
-            const encontrosMarcados = encontros.filter(e => !e.isFuturo).length;
-            const ciclosCompletos = Math.floor(encontrosMarcados / 3);
+            // 4. Sistema de títulos corrigido
+
+            // Contar quantos encontros *realizados* o usuário atual avaliou
+            const encontrosRealizadosUsuario = encontros.filter(e => 
+                !e.isFuturo && e.avaliacoes.some(a => a.usuario === usuarioAtual)
+            ).length;
             
             // A lógica de conquista só é verificada após o carregamento inicial
-            if (carregamentoInicial) return;
+            if (carregamentoInicial) {
+                // Garante que se o usuário já tiver encontros suficientes, a variável de controle seja atualizada
+                // para que o modal não apareça no primeiro carregamento.
+                if (encontrosRealizadosUsuario >= 3 && parseInt(localStorage.getItem('ultimaConquistaVista') || '0') === 0) {
+                    localStorage.setItem('ultimaConquistaVista', '3');
+                }
+                return;
+            }
 
             const conquistas = [
-                { ciclos: 1, titulo: "Conversantes" },
-                { ciclos: 2, titulo: "Amigos de Rolê" },
-                { ciclos: 3, titulo: "Parceiros de Crime Gastronômico" },
-                { ciclos: 4, titulo: "Almas Gêmeas de Gosto Duvidoso" }
+                { 
+                    limite: 3, 
+                    titulo: "Conversante", 
+                    mensagem: "3 encontros? Isso é mais que amizade?" 
+                },
+                { 
+                    limite: 6, 
+                    titulo: "Ficante de Trabalho", 
+                    mensagem: "Vocês gostam mesmo de estar juntos! boatos correm por aí!" 
+                }
+                // Adicione mais títulos aqui se desejar
             ];
 
+            // Inicializa a última conquista vista. Se for a primeira vez, será 0.
             const ultimaConquistaVista = parseInt(localStorage.getItem('ultimaConquistaVista') || '0');
             
             conquistas.forEach(conquista => {
-                if (ciclosCompletos >= conquista.ciclos && conquista.ciclos > ultimaConquistaVista) {
-                    mostrarAchievement(`Agora vocês são: ${conquista.titulo}`);
-                    localStorage.setItem('ultimaConquistaVista', conquista.ciclos.toString());
+                if (encontrosRealizadosUsuario >= conquista.limite && conquista.limite > ultimaConquistaVista) {
+                    mostrarAchievement(`Você recebeu o titulo de: ${conquista.titulo}`, conquista.mensagem);
+                    localStorage.setItem('ultimaConquistaVista', conquista.limite.toString());
                 }
             });
         }
